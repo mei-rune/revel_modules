@@ -108,11 +108,11 @@
 				{% endif %}
 			</h2>
 			{% for src in Error.ContextSource %}
-				<div class="line{% if Error.IsError %} error{{end}}">
+				<div class="line{% if src.IsError %} error{% endif %}">
 					<span class="lineNumber">{{src.Line}}:</span>
 					<pre>{{src.Source}}</pre>
 				</div>
-			{% end %}
+			{% endfor %}
 		</div>
 		{% endif %}
 		{% if Error.Stack %}

@@ -76,7 +76,7 @@ func (engine *HamlEngine) Lookup(templateName string) revel.Template {
 }
 
 func init() {
-	revel.TemplateEngines[revel.GOHAML_TEMPLATE] = func(loader *revel.TemplateLoader) (revel.TemplateEngine, error) {
+	revel.TemplateEngines["gohaml"] = func(loader *revel.TemplateLoader) (revel.TemplateEngine, error) {
 		return &HamlEngine{
 			loader:      loader,
 			templateSet: map[string]*gohaml.Engine{},

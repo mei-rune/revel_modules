@@ -55,7 +55,7 @@
 	<h2>These routes have been tried, in this order :</h2>
 	<ol>
 		{% for route in Router.Routes %}
-			<li>{{route.Method}}  {{route.Path}}{{.Action}}</li>
+			<li>{{route.Method}}  {{route.Path}}{{route.Action}}</li>
 		{% endfor %}
 	</ol>
 </div>

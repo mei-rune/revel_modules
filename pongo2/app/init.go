@@ -1,17 +1,17 @@
-package gohaml
+package pongo2
 
 import (
 	"io"
 	"strings"
 
-	"github.com/flosch/pongo2"
+	p2 "github.com/flosch/pongo2"
 	"github.com/revel/revel"
 )
 
 // Adapter for HAML Templates.
 type PongoTemplate struct {
 	name     string
-	template *pongo2.Template
+	template *p2.Template
 	engine   *PongoEngine
 }
 
@@ -20,31 +20,51 @@ func (tmpl PongoTemplate) Name() string {
 }
 
 // return a 'revel.Template' from HAML's template.
-func (tmpl PongoTemplate) Render(wr io.Writer, arg interface{}) (err error) {
-	return tmpl.template.ExecuteWriter(pongo2.Context(arg.(map[string]interface{})), wr)
+func (tmpl PongoTemplate) Render(wr io.Writer, arg interface{}) error {
+	err := tmpl.template.ExecuteWriter(p2.Context(arg.(map[string]interface{})), wr)
+	if nil != err {
+		if e, ok := err.(*p2.Error); ok {
+			rerr := &revel.Error{
+				Title:       "Template Execution Error",
+				Path:        tmpl.name,
+				Description: e.ErrorMsg,
+				Line:        e.Line,
+				//SourceLines: tmpl.Content(),
+			}
+			if revel.DevMode {
+				rerr.SourceLines = tmpl.Content()
+			}
+			return rerr
+		}
+	}
+	return err
 }
 
 func (tmpl PongoTemplate) Content() []string {
-	content, _ := revel.ReadLines(tmpl.engine.loader.TemplatePaths[tmpl.Name()])
+	pa, ok := tmpl.engine.loader.TemplatePaths[tmpl.Name()]
+	if !ok {
+		pa, ok = tmpl.engine.loader.TemplatePaths[strings.ToLower(tmpl.Name())]
+	}
+	content, _ := revel.ReadLines(pa)
 	return content
 }
 
 type PongoEngine struct {
 	loader                *revel.TemplateLoader
-	templateSetBybasePath map[string]*pongo2.TemplateSet
-	templates             map[string]*pongo2.Template
+	templateSetBybasePath map[string]*p2.TemplateSet
+	templates             map[string]*p2.Template
 }
 
 func (engine *PongoEngine) ParseAndAdd(templateName string, templateSource string, basePath string) *revel.Error {
 	templateSet := engine.templateSetBybasePath[basePath]
 	if nil == templateSet {
-		templateSet = pongo2.NewSet(basePath, pongo2.MustNewLocalFileSystemLoader(basePath))
+		templateSet = p2.NewSet(basePath, p2.MustNewLocalFileSystemLoader(basePath))
 		engine.templateSetBybasePath[basePath] = templateSet
 	}
 
 	tpl, err := templateSet.FromString(templateSource)
 	if nil != err {
-		_, line, description := parseHamlError(err)
+		_, line, description := parsePongo2Error(err)
 		return &revel.Error{
 			Title:       "Template Compilation Error",
 			Path:        templateName,
@@ -58,8 +78,8 @@ func (engine *PongoEngine) ParseAndAdd(templateName string, templateSource strin
 	return nil
 }
 
-func parseHamlError(err error) (templateName string, line int, description string) {
-	pongoError := err.(*pongo2.Error)
+func parsePongo2Error(err error) (templateName string, line int, description string) {
+	pongoError := err.(*p2.Error)
 	if nil != pongoError {
 		return pongoError.Filename, pongoError.Line, pongoError.ErrorMsg
 	}
@@ -75,11 +95,11 @@ func (engine *PongoEngine) Lookup(templateName string) revel.Template {
 }
 
 func init() {
-	revel.TemplateEngines[revel.GOHAML_TEMPLATE] = func(loader *revel.TemplateLoader) (revel.TemplateEngine, error) {
+	revel.TemplateEngines["pongo2"] = func(loader *revel.TemplateLoader) (revel.TemplateEngine, error) {
 		return &PongoEngine{
 			loader:                loader,
-			templateSetBybasePath: map[string]*pongo2.TemplateSet{},
-			templates:             map[string]*pongo2.Template{},
+			templateSetBybasePath: map[string]*p2.TemplateSet{},
+			templates:             map[string]*p2.Template{},
 		}, nil
 	}
 }

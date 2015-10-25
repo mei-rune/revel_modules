@@ -4,7 +4,7 @@
 		<title>Application error</title>
 	</head>
 	<body>
-		{% if .DevMode %}
+		{% if DevMode %}
 		{% include "errors/500-dev.html" %}
 		{% else %}
 		<h1>Oops, an error occured</h1>
