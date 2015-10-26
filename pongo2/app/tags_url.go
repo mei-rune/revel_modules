@@ -3,7 +3,7 @@ package pongo2
 import (
 	"github.com/revel/revel"
 
-	p2 "github.com/flosch/pongo2"
+	p2 "github.com/runner-mei/pongo2"
 )
 
 type tagURLForNode struct {

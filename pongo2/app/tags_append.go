@@ -3,7 +3,7 @@ package pongo2
 import (
 	"reflect"
 
-	p2 "github.com/flosch/pongo2"
+	p2 "github.com/runner-mei/pongo2"
 )
 
 type tagAppendNode struct {

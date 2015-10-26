@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"html"
 
-	p2 "github.com/flosch/pongo2"
 	"github.com/revel/revel"
+	p2 "github.com/runner-mei/pongo2"
 )
 
 type tagCheckboxNode struct {
