@@ -3,7 +3,7 @@ package controllers
 import (
 	"strings"
 
-	p2 "github.com/flosch/pongo2"
+	p2 "github.com/runner-mei/pongo2"
 
 	"github.com/revel/revel"
 	"github.com/robfig/cron"
